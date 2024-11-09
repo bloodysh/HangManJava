@@ -152,6 +152,7 @@ public class Hangman extends JFrame implements ActionListener {
     private void saveGame() {
         CustomTools.saveGame(gameWord, hiddenWordLabel, incorrectGuesses, letterButtons);
     }
+    //
 
     private void loadGame() {
         Object[] loadedState = CustomTools.loadGame(hiddenWordLabel, letterButtons);
