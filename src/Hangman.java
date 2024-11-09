@@ -12,8 +12,14 @@ public class Hangman extends JFrame implements ActionListener {
     private int incorrectGuesses;
     private String[] gameWord;
     private JButton[] letterButtons;
+    private String username;
 
-    public Hangman() {
+    public String getUsername() {
+        return username;
+    }
+
+    public Hangman(String username) {
+        this.username = username;
         setTitle("Hangman");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(540, 760);
@@ -34,6 +40,11 @@ public class Hangman extends JFrame implements ActionListener {
         String[] options = {"1 - Easy", "2 - Medium", "3 - Hard"};
         int choice = JOptionPane.showOptionDialog(this, "Choose difficulty level:", "Difficulty",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        if (choice == JOptionPane.CLOSED_OPTION) {
+            System.exit(0); // Exit the application if the dialog is closed
+        }
+
         return choice + 1;
     }
 
@@ -111,7 +122,7 @@ public class Hangman extends JFrame implements ActionListener {
             updateHiddenWord(actionCommand);
             if (!hiddenWordLabel.getText().contains("_")) {
                 hiddenWordLabel.setForeground(Color.GREEN);
-                JOptionPane.showMessageDialog(this, "You won!");
+                JOptionPane.showMessageDialog(this, getUsername() +", You won!");
                 resetGame();
             }
         } else {
@@ -150,15 +161,15 @@ public class Hangman extends JFrame implements ActionListener {
     }
 
     private void saveGame() {
-        CustomTools.saveGame(gameWord, hiddenWordLabel, incorrectGuesses, letterButtons);
+        CustomTools.saveGame(username, gameWord, hiddenWordLabel, incorrectGuesses, letterButtons);
     }
-    //
 
     private void loadGame() {
         Object[] loadedState = CustomTools.loadGame(hiddenWordLabel, letterButtons);
         if (loadedState != null) {
-            gameWord = (String[]) loadedState[0];
-            incorrectGuesses = (int) loadedState[1];
+            username = (String) loadedState[0];
+            gameWord = (String[]) loadedState[1];
+            incorrectGuesses = (int) loadedState[2];
         }
     }
 }
