@@ -4,13 +4,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 
 public class PickSaveWindow extends JFrame implements ActionListener {
 
     private JFileChooser chooser;
     private JButton createSaveButton;
-    private JButton openAdminButton;
 
     public PickSaveWindow() {
         super();
@@ -24,6 +22,7 @@ public class PickSaveWindow extends JFrame implements ActionListener {
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
+
         chooser = new JFileChooser();
         chooser.addActionListener(this);
         chooser.setFileFilter(new FileFilter() {
@@ -40,33 +39,16 @@ public class PickSaveWindow extends JFrame implements ActionListener {
         chooser.setCurrentDirectory(new File("saves/"));
         this.add(chooser);
 
-        JPanel buttons = new JPanel();
-        GridLayout buttonsLayout = new GridLayout(2, 1);
-        buttonsLayout.setVgap(10);
-        buttons.setLayout(buttonsLayout);
-
         createSaveButton = new JButton("Create save");
         createSaveButton.addActionListener(this);
-        buttons.add(createSaveButton);
+        this.add(createSaveButton);
 
-        openAdminButton = new JButton("Open admin panel");
-        openAdminButton.addActionListener(this);
-        buttons.add(openAdminButton);
-
-        this.add(buttons);
         this.pack();
     }
 
     private void createGameSave() {
-        String username = JOptionPane.showInputDialog(this, "Please input username");
-        if (username != null) {
-            try {
-                GameSave.createSave(new File("saves/"+username+".hangman.txt"));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            chooser.updateUI();
-        }
+        Program.newGame();
+        dispose();
     }
 
     @Override
@@ -74,17 +56,13 @@ public class PickSaveWindow extends JFrame implements ActionListener {
         if (e.getSource() == chooser) {
             String s = e.getActionCommand();
             if (s.equals("ApproveSelection")) {
-                Hangman hangman = new Hangman(GameSave.loadSave(chooser.getSelectedFile()));
-                hangman.setVisible(true);
+                Hangman.openWindow(GameSave.loadSave(chooser.getSelectedFile()));
                 dispose();
             } else {
                 System.exit(0);
             }
         } else if (e.getSource() == createSaveButton) {
             createGameSave();
-        } else if (e.getSource() == openAdminButton) {
-            AdminOptions.openWindow();
-            dispose();
         }
     }
 

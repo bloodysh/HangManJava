@@ -36,6 +36,16 @@ public class Hangman extends JFrame implements ActionListener {
         addGuiComponents();
     }
 
+    public static void openWindow(GameSave gameSave) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                Hangman hangman = new Hangman(gameSave);
+                hangman.setVisible(true);
+            }
+        });
+    }
+
     private Difficulty chooseDifficulty() {
         String[] options = {"1 - Easy", "2 - Medium", "3 - Hard"};
         int choice = JOptionPane.showOptionDialog(this, "Choose difficulty level:", "Difficulty",
@@ -118,7 +128,7 @@ public class Hangman extends JFrame implements ActionListener {
                 break;
             case "Load":
                 gameSave.saveFile();
-                Main.main(new String[]{});
+                Program.main(new String[]{});
                 dispose();
                 break;
             case "Admin":
