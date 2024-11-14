@@ -2,24 +2,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.util.Arrays;
 
 public class Hangman extends JFrame implements ActionListener {
-    private Dictionnaire dictio;
-    private JLabel hangmanImage;
+    private final Dictionary dictionary;
+    private JImageResourceLabel hangmanImage;
     private JLabel hiddenWordLabel;
-    private int incorrectGuesses;
-    private String[] gameWord;
-    private JButton[] letterButtons;
-    private String username;
+    private final JButton[] letterButtons;
+
+    private final GameSave gameSave;
+
 
     public String getUsername() {
-        return username;
+        return gameSave.getUsername();
     }
 
-    public Hangman(String username) {
-        this.username = username;
+    public Hangman(GameSave gameSave) {
         setTitle("Hangman");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(540, 760);
@@ -28,15 +25,18 @@ public class Hangman extends JFrame implements ActionListener {
         setResizable(false);
         getContentPane().setBackground(Color.BLACK);
 
-        dictio = new Dictionnaire();
+        this.gameSave = gameSave;
+        dictionary = new Dictionary();
         letterButtons = new JButton[26];
-        int difficulty = chooseDifficulty();
-        gameWord = dictio.loadChallenge(difficulty);
+
+        if (gameSave.getWord() == null) {
+            resetGame();
+        }
 
         addGuiComponents();
     }
 
-    private int chooseDifficulty() {
+    private Difficulty chooseDifficulty() {
         String[] options = {"1 - Easy", "2 - Medium", "3 - Hard"};
         int choice = JOptionPane.showOptionDialog(this, "Choose difficulty level:", "Difficulty",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -45,14 +45,20 @@ public class Hangman extends JFrame implements ActionListener {
             System.exit(0); // Exit the application if the dialog is closed
         }
 
-        return choice + 1;
+        return switch (choice) {
+            case 0 -> Difficulty.Easy;
+            case 1 -> Difficulty.Medium;
+            case 2 -> Difficulty.Hard;
+            default ->
+                    throw new IllegalStateException("Unexpected value: " + choice);
+        };
     }
 
     private void addGuiComponents() {
-        hangmanImage = CustomTools.loadImage("/images/1.png");
+        hangmanImage = new JImageResourceLabel("/images/" + (gameSave.getIncorrectGuesses() + 1) + ".png");
         hangmanImage.setBounds(0, 0, hangmanImage.getPreferredSize().width, hangmanImage.getPreferredSize().height);
 
-        hiddenWordLabel = new JLabel(CustomTools.hideWord(gameWord[0]));
+        hiddenWordLabel = new JLabel(gameSave.getHiddenValue());
         hiddenWordLabel.setForeground(Color.WHITE);
         hiddenWordLabel.setHorizontalAlignment(SwingConstants.CENTER);
         hiddenWordLabel.setFont(new Font("Arial", Font.BOLD, 30));
@@ -65,22 +71,29 @@ public class Hangman extends JFrame implements ActionListener {
         getContentPane().add(letterPanel);
     }
 
+    private Color determineButtonColor(char letter) {
+        if (gameSave.isCharacterGuessed(letter)) {
+            return gameSave.getWord().containsLetter(letter) ? Color.GREEN:Color.RED;
+        }
+        return Color.BLACK;
+    }
+
     private JPanel createLetterPanel() {
         GridLayout gridLayout = new GridLayout(5, 6);
         JPanel letterPanel = new JPanel(gridLayout);
         letterPanel.setBounds(-5, hiddenWordLabel.getY() + hiddenWordLabel.getPreferredSize().height + 20, 540, (int) (760 * 0.42));
         letterPanel.setLayout(gridLayout);
 
-        for (char c = 'A'; c <= 'Z'; c++) {
-            JButton letterButton = createButton(Character.toString(c), Color.BLACK, Color.WHITE);
-            letterButtons[c - 'A'] = letterButton;
+        for (char letter = 'A'; letter <= 'Z'; letter++) {
+            JButton letterButton = createButton(Character.toString(letter), determineButtonColor(letter), Color.WHITE);
+            letterButtons[letter - 'A'] = letterButton;
             letterPanel.add(letterButton);
         }
 
         letterPanel.add(createButton("Reset", Color.CYAN, Color.WHITE));
-        letterPanel.add(createButton("Quit", Color.CYAN, Color.WHITE));
         letterPanel.add(createButton("Save", Color.CYAN, Color.WHITE));
         letterPanel.add(createButton("Load", Color.CYAN, Color.WHITE));
+        letterPanel.add(createButton("Admin", Color.ORANGE, Color.WHITE));
 
         return letterPanel;
     }
@@ -100,76 +113,70 @@ public class Hangman extends JFrame implements ActionListener {
             case "Reset":
                 resetGame();
                 break;
-            case "Quit":
-                dispose();
-                break;
             case "Save":
-                saveGame();
+                gameSave.saveFile();
                 break;
             case "Load":
-                loadGame();
+                gameSave.saveFile();
+                Main.main(new String[]{});
+                dispose();
+                break;
+            case "Admin":
+                gameSave.saveFile();
+                AdminOptions.openWindow();
+                dispose();
                 break;
             default:
-                handleLetterButton(actionCommand, (JButton) e.getSource());
+                handleLetterButton(actionCommand.charAt(0), (JButton) e.getSource());
                 break;
         }
     }
 
-    private void handleLetterButton(String actionCommand, JButton clickedButton) {
+    private void handleLetterButton(char letter, JButton clickedButton) {
         clickedButton.setEnabled(false);
-        if (gameWord[0].contains(actionCommand)) {
+        gameSave.addGuessedCharacter(letter);
+        updateHiddenWord();
+        if (gameSave.getWord().containsLetter(letter)) {
             clickedButton.setBackground(Color.GREEN);
-            updateHiddenWord(actionCommand);
             if (!hiddenWordLabel.getText().contains("_")) {
                 hiddenWordLabel.setForeground(Color.GREEN);
-                JOptionPane.showMessageDialog(this, getUsername() +", You won!");
+                JOptionPane.showMessageDialog(this, getUsername() + ", You won!");
                 resetGame();
             }
         } else {
             clickedButton.setBackground(Color.RED);
-            incorrectGuesses++;
-            CustomTools.updateImage(hangmanImage, "/images/" + (incorrectGuesses + 1) + ".png");
-            if (incorrectGuesses == 6) {
+            gameSave.incrementIncorrectGuess();
+            hangmanImage.setImageResourcePath("/images/" + (gameSave.getIncorrectGuesses() + 1) + ".png");
+            if (gameSave.getIncorrectGuesses() == 6) {
                 hiddenWordLabel.setForeground(Color.RED);
-                JOptionPane.showMessageDialog(this, "You lost! The word was: " + gameWord[0]);
+                JOptionPane.showMessageDialog(this, "You lost! The word was: " + gameSave.getWord().getRawValue());
                 resetGame();
             }
         }
     }
 
-    private void updateHiddenWord(String actionCommand) {
-        char[] hiddenWord = hiddenWordLabel.getText().toCharArray();
-        for (int i = 0; i < gameWord[0].length(); i++) {
-            if (gameWord[0].charAt(i) == actionCommand.charAt(0)) {
-                hiddenWord[i * 2] = actionCommand.charAt(0);
-            }
-        }
-        hiddenWordLabel.setText(new String(hiddenWord));
+    private void updateHiddenWord() {
+        hiddenWordLabel.setText(gameSave.getHiddenValue());
     }
 
     private void resetGame() {
-        int difficulty = chooseDifficulty();
-        gameWord = dictio.loadChallenge(difficulty);
-        incorrectGuesses = 0;
-        CustomTools.updateImage(hangmanImage, "/images/1.png");
-        hiddenWordLabel.setText(CustomTools.hideWord(gameWord[0]));
+        Difficulty difficulty = chooseDifficulty();
+        gameSave.setWord(dictionary.pickRandomWord(difficulty));
+        gameSave.clearGuessedCharacters();
+        gameSave.setIncorrectGuesses(0);
+        gameSave.saveFile();
+        if (hiddenWordLabel != null) {
+            updateHiddenWord();
+            resetUI();
+        }
+    }
+
+    private void resetUI() {
+        hangmanImage.setImageResourcePath("/images/1.png");
         hiddenWordLabel.setForeground(Color.WHITE);
         for (JButton letterButton : letterButtons) {
             letterButton.setEnabled(true);
             letterButton.setBackground(Color.BLACK);
-        }
-    }
-
-    private void saveGame() {
-        CustomTools.saveGame(username, gameWord, hiddenWordLabel, incorrectGuesses, letterButtons);
-    }
-
-    private void loadGame() {
-        Object[] loadedState = CustomTools.loadGame(hiddenWordLabel, letterButtons);
-        if (loadedState != null) {
-            username = (String) loadedState[0];
-            gameWord = (String[]) loadedState[1];
-            incorrectGuesses = (int) loadedState[2];
         }
     }
 }
