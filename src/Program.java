@@ -17,7 +17,7 @@ public class Program {
         );
         switch (chosenOption) {
             case 0 -> newGame();
-            case 1 -> PickSaveWindow.openWindow();
+            case 1 -> OpenSaveWindow.openWindow();
             case 2 -> AdminOptions.openWindow();
         }
     }

@@ -101,7 +101,7 @@ public class Hangman extends JFrame implements ActionListener {
         }
 
         letterPanel.add(createButton("Reset", Color.CYAN, Color.WHITE));
-        letterPanel.add(createButton("Save", Color.CYAN, Color.WHITE));
+        letterPanel.add(createButton("Save as", Color.CYAN, Color.WHITE));
         letterPanel.add(createButton("Load", Color.CYAN, Color.WHITE));
         letterPanel.add(createButton("Admin", Color.ORANGE, Color.WHITE));
 
@@ -123,13 +123,12 @@ public class Hangman extends JFrame implements ActionListener {
             case "Reset":
                 resetGame();
                 break;
-            case "Save":
-                gameSave.saveFile();
+            case "Save as":
+                SaveAsWindow.openWindow(gameSave);
                 break;
             case "Load":
-                gameSave.saveFile();
-                Program.main(new String[]{});
-                dispose();
+                OpenSaveWindow openSaveWindow = new OpenSaveWindow(this::dispose);
+                openSaveWindow.setVisible(true);
                 break;
             case "Admin":
                 gameSave.saveFile();

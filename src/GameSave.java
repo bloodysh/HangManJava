@@ -134,4 +134,12 @@ public class GameSave {
     public void setIncorrectGuesses(int incorrectGuesses) {
         this.incorrectGuesses = incorrectGuesses;
     }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
 }

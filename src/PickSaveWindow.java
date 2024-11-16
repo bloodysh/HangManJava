@@ -1,14 +1,16 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 
-public class PickSaveWindow extends JFrame implements ActionListener {
+public abstract class PickSaveWindow extends JFrame implements ActionListener {
 
-    private JFileChooser chooser;
-    private JButton createSaveButton;
+    protected JFileChooser chooser;
+
+    abstract void fileSelected(File file);
+
+    abstract void operationCanceled();
 
     public PickSaveWindow() {
         super();
@@ -16,12 +18,19 @@ public class PickSaveWindow extends JFrame implements ActionListener {
     }
 
     private void build() {
-        setTitle("Open save");
         setSize(500, 500);
         setLocationRelativeTo(null); //the window is centered on
         setResizable(true);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLayout(new FlowLayout());
+
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                dispose();
+                operationCanceled();
+            }
+        });
 
         chooser = new JFileChooser();
         chooser.addActionListener(this);
@@ -39,16 +48,7 @@ public class PickSaveWindow extends JFrame implements ActionListener {
         chooser.setCurrentDirectory(new File("saves/"));
         this.add(chooser);
 
-        createSaveButton = new JButton("Create save");
-        createSaveButton.addActionListener(this);
-        this.add(createSaveButton);
-
         this.pack();
-    }
-
-    private void createGameSave() {
-        Program.newGame();
-        dispose();
     }
 
     @Override
@@ -56,23 +56,11 @@ public class PickSaveWindow extends JFrame implements ActionListener {
         if (e.getSource() == chooser) {
             String s = e.getActionCommand();
             if (s.equals("ApproveSelection")) {
-                Hangman.openWindow(GameSave.loadSave(chooser.getSelectedFile()));
-                dispose();
+                fileSelected(chooser.getSelectedFile());
             } else {
-                System.exit(0);
+                operationCanceled();
             }
-        } else if (e.getSource() == createSaveButton) {
-            createGameSave();
+            dispose();
         }
-    }
-
-    public static void openWindow() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                PickSaveWindow window = new PickSaveWindow();
-                window.setVisible(true);
-            }
-        });
     }
 }

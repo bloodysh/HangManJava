@@ -92,8 +92,8 @@ public class AdminOptions extends JFrame implements ListSelectionListener, Actio
         } else if (e.getSource() == addWordButton) {
             promptForNewWord();
         } else if (e.getSource() == goBackToGameButton) {
-            Program.main(new String[]{});
             dispose();
+            Program.main(new String[]{});
         }
     }
 
