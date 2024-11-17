@@ -8,9 +8,7 @@ public class Hangman extends JFrame implements ActionListener {
     private JImageResourceLabel hangmanImage;
     private JLabel hiddenWordLabel;
     private final JButton[] letterButtons;
-
     private final GameSave gameSave;
-
 
     public String getUsername() {
         return gameSave.getUsername();
@@ -34,16 +32,59 @@ public class Hangman extends JFrame implements ActionListener {
         }
 
         addGuiComponents();
+        addMenu();
     }
 
     public static void openWindow(GameSave gameSave) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Hangman hangman = new Hangman(gameSave);
-                hangman.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            Hangman hangman = new Hangman(gameSave);
+            hangman.setVisible(true);
         });
+    }
+
+    private void addMenu() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Menu");
+        JMenuItem adminMenuItem = new JMenuItem("Admin");
+        JMenuItem aboutMenuItem = new JMenuItem("About this game");
+
+        // Customize font
+        Font font = new Font("Arial", Font.BOLD, 20);
+        menu.setFont(font);
+        adminMenuItem.setFont(font);
+        aboutMenuItem.setFont(font);
+
+        // Customize color
+        menu.setForeground(Color.WHITE);
+        adminMenuItem.setForeground(Color.DARK_GRAY);
+        adminMenuItem.setBackground(Color.GRAY);
+        aboutMenuItem.setForeground(Color.DARK_GRAY);
+        aboutMenuItem.setBackground(Color.GRAY);
+
+        // Add admin icon
+        ImageIcon adminIcon = new ImageIcon(getClass().getResource("/images/Admin.png"));
+        Image image = adminIcon.getImage();
+        Image scaledImage = image.getScaledInstance(25, 25, Image.SCALE_SMOOTH);
+        adminIcon = new ImageIcon(scaledImage);
+        adminMenuItem.setIcon(adminIcon);
+
+        adminMenuItem.addActionListener(e -> {
+            gameSave.saveFile();
+            AdminOptions.openWindow();
+            dispose();
+        });
+
+        aboutMenuItem.addActionListener(e -> {
+            AboutWindow.openWindow();
+        });
+
+        menu.add(adminMenuItem);
+        menu.add(aboutMenuItem);
+        menuBar.add(menu);
+        setJMenuBar(menuBar);
+
+        // Set menu bar background color
+        menuBar.setBackground(Color.DARK_GRAY);
     }
 
     private Difficulty chooseDifficulty() {
@@ -59,8 +100,7 @@ public class Hangman extends JFrame implements ActionListener {
             case 0 -> Difficulty.Easy;
             case 1 -> Difficulty.Medium;
             case 2 -> Difficulty.Hard;
-            default ->
-                    throw new IllegalStateException("Unexpected value: " + choice);
+            default -> throw new IllegalStateException("Unexpected value: " + choice);
         };
     }
 
@@ -83,7 +123,7 @@ public class Hangman extends JFrame implements ActionListener {
 
     private Color determineButtonColor(char letter) {
         if (gameSave.isCharacterGuessed(letter)) {
-            return gameSave.getWord().containsLetter(letter) ? Color.GREEN:Color.RED;
+            return gameSave.getWord().containsLetter(letter) ? Color.GREEN : Color.RED;
         }
         return Color.BLACK;
     }
