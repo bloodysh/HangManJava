@@ -1,3 +1,3 @@
-Easy|classe|objet|methode|heriter|fonction|variable|public|prive|interface|module|code|boucle
+Easy|objet|methode|heriter|fonction|variable|public|prive|module|code|boucle|classe
 Medium|constructeur|destructeur|encapsulation|heritage|polymorphisme|abstraction|attribut|instance|prototype|singleton|surcharge|modification
 Hard|referencement|mutabilite|introspection|agregation|composition|specification|generique|accessibilite|confidentialite|implementation|instantiation|interoperabilite|encapsulation|autoreference

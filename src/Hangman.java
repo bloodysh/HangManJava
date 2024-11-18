@@ -3,6 +3,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * The Hangman class represents the main game window for the Hangman game.
+ * It handles the game logic, user interactions, and GUI components.
+ */
 public class Hangman extends JFrame implements ActionListener {
     private final Dictionary dictionary;
     private JImageResourceLabel hangmanImage;
@@ -10,10 +14,21 @@ public class Hangman extends JFrame implements ActionListener {
     private final JButton[] letterButtons;
     private final GameSave gameSave;
 
+    /**
+     * Gets the username of the current game save.
+     *
+     * @return the username
+     */
     public String getUsername() {
         return gameSave.getUsername();
     }
 
+    /**
+     * Constructs a Hangman object with the specified game save.
+     * Sets up the window properties and initializes the components.
+     *
+     * @param gameSave the game save object
+     */
     public Hangman(GameSave gameSave) {
         setTitle("Hangman");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -35,6 +50,11 @@ public class Hangman extends JFrame implements ActionListener {
         addMenu();
     }
 
+    /**
+     * Opens the Hangman game window with the specified game save.
+     *
+     * @param gameSave the game save object
+     */
     public static void openWindow(GameSave gameSave) {
         SwingUtilities.invokeLater(() -> {
             Hangman hangman = new Hangman(gameSave);
@@ -42,6 +62,9 @@ public class Hangman extends JFrame implements ActionListener {
         });
     }
 
+    /**
+     * Adds the menu bar and menu items to the window.
+     */
     private void addMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Menu");
@@ -87,6 +110,11 @@ public class Hangman extends JFrame implements ActionListener {
         menuBar.setBackground(Color.DARK_GRAY);
     }
 
+    /**
+     * Prompts the user to choose a difficulty level.
+     *
+     * @return the chosen difficulty level
+     */
     private Difficulty chooseDifficulty() {
         String[] options = {"1 - Easy", "2 - Medium", "3 - Hard"};
         int choice = JOptionPane.showOptionDialog(this, "Choose difficulty level:", "Difficulty",
@@ -104,6 +132,9 @@ public class Hangman extends JFrame implements ActionListener {
         };
     }
 
+    /**
+     * Adds the GUI components to the window.
+     */
     private void addGuiComponents() {
         hangmanImage = new JImageResourceLabel("/images/" + (gameSave.getIncorrectGuesses() + 1) + ".png");
         hangmanImage.setBounds(0, 0, hangmanImage.getPreferredSize().width, hangmanImage.getPreferredSize().height);
@@ -121,6 +152,12 @@ public class Hangman extends JFrame implements ActionListener {
         getContentPane().add(letterPanel);
     }
 
+    /**
+     * Determines the color of the letter button based on whether the letter has been guessed.
+     *
+     * @param letter the letter to check
+     * @return the color of the button
+     */
     private Color determineButtonColor(char letter) {
         if (gameSave.isCharacterGuessed(letter)) {
             return gameSave.getWord().containsLetter(letter) ? Color.GREEN : Color.RED;
@@ -128,6 +165,11 @@ public class Hangman extends JFrame implements ActionListener {
         return Color.BLACK;
     }
 
+    /**
+     * Creates the panel containing the letter buttons.
+     *
+     * @return the letter panel
+     */
     private JPanel createLetterPanel() {
         GridLayout gridLayout = new GridLayout(5, 6);
         JPanel letterPanel = new JPanel(gridLayout);
@@ -148,6 +190,14 @@ public class Hangman extends JFrame implements ActionListener {
         return letterPanel;
     }
 
+    /**
+     * Creates a button with the specified text, background color, and foreground color.
+     *
+     * @param text the text of the button
+     * @param bgColor the background color of the button
+     * @param fgColor the foreground color of the button
+     * @return the created button
+     */
     private JButton createButton(String text, Color bgColor, Color fgColor) {
         JButton button = new JButton(text);
         button.setBackground(bgColor);
@@ -156,6 +206,11 @@ public class Hangman extends JFrame implements ActionListener {
         return button;
     }
 
+    /**
+     * Handles the action performed event for the buttons.
+     *
+     * @param e the ActionEvent
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         String actionCommand = e.getActionCommand();
@@ -181,6 +236,12 @@ public class Hangman extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Handles the letter button click event.
+     *
+     * @param letter the letter of the clicked button
+     * @param clickedButton the clicked button
+     */
     private void handleLetterButton(char letter, JButton clickedButton) {
         clickedButton.setEnabled(false);
         gameSave.addGuessedCharacter(letter);
@@ -204,10 +265,16 @@ public class Hangman extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Updates the hidden word label with the current hidden value.
+     */
     private void updateHiddenWord() {
         hiddenWordLabel.setText(gameSave.getHiddenValue());
     }
 
+    /**
+     * Resets the game with a new word and difficulty level.
+     */
     private void resetGame() {
         Difficulty difficulty = chooseDifficulty();
         gameSave.setWord(dictionary.pickRandomWord(difficulty));
@@ -220,6 +287,9 @@ public class Hangman extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Resets the UI components to their initial state.
+     */
     private void resetUI() {
         hangmanImage.setImageResourcePath("/images/1.png");
         hiddenWordLabel.setForeground(Color.WHITE);

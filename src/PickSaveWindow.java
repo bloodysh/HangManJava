@@ -4,22 +4,40 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 
+/**
+ * The PickSaveWindow class is an abstract class that provides a window for selecting a save file.
+ * It uses a JFileChooser to allow the user to pick a file and handles the file selection and cancellation events.
+ */
 public abstract class PickSaveWindow extends JFrame implements ActionListener {
 
     protected JFileChooser chooser;
 
+    /**
+     * This method is called when a file is selected.
+     *
+     * @param file the selected file
+     */
     abstract void fileSelected(File file);
 
+    /**
+     * This method is called when the operation is canceled.
+     */
     abstract void operationCanceled();
 
+    /**
+     * Constructs a PickSaveWindow object and builds the window.
+     */
     public PickSaveWindow() {
         super();
         build();
     }
 
+    /**
+     * Builds the window by setting its properties and adding the file chooser.
+     */
     private void build() {
         setSize(500, 500);
-        setLocationRelativeTo(null); //the window is centered on
+        setLocationRelativeTo(null); // the window is centered on the screen
         setResizable(true);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLayout(new FlowLayout());
@@ -51,6 +69,11 @@ public abstract class PickSaveWindow extends JFrame implements ActionListener {
         this.pack();
     }
 
+    /**
+     * Handles the action performed event for the file chooser.
+     *
+     * @param e the ActionEvent
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == chooser) {

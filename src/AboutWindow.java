@@ -1,7 +1,16 @@
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * The AboutWindow class represents a window that displays information about the Hangman game.
+ * It provides details on how to play the game and some tips.
+ */
 public class AboutWindow extends JFrame {
+
+    /**
+     * Constructs an AboutWindow object.
+     * Sets up the window properties and adds the text area with game information.
+     */
     public AboutWindow() {
         setTitle("About this game");
         setSize(400, 300);
@@ -19,8 +28,8 @@ public class AboutWindow extends JFrame {
                 "- Start with common vowels (A, E, I, O, U).\n" +
                 "- Look for common consonants (R, S, T, L, N).\n" +
                 "- Use the process of elimination.\n" +
-                " Developped By: Anas Benmsatef & Leon Lozahic\n"
-                );
+                " Developed By: Anas Benmsatef & Leon Lozahic\n"
+        );
         aboutText.setEditable(false);
         aboutText.setFont(new Font("Arial", Font.PLAIN, 14));
         aboutText.setMargin(new Insets(10, 10, 10, 10));
@@ -28,6 +37,10 @@ public class AboutWindow extends JFrame {
         add(new JScrollPane(aboutText), BorderLayout.CENTER);
     }
 
+    /**
+     * Opens the AboutWindow.
+     * This method is called to display the AboutWindow.
+     */
     public static void openWindow() {
         SwingUtilities.invokeLater(() -> {
             AboutWindow aboutWindow = new AboutWindow();

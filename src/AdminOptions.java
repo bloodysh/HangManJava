@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -8,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * The AdminOptions class represents the admin options window for the Hangman game.
+ * It allows the admin to manage the dictionary words and their difficulties.
+ */
 public class AdminOptions extends JFrame implements ListSelectionListener, ActionListener {
     Dictionary dictionary;
     Difficulty currentDifficulty;
@@ -18,6 +23,10 @@ public class AdminOptions extends JFrame implements ListSelectionListener, Actio
     JButton removeWordButton;
     JButton goBackToGameButton;
 
+    /**
+     * Constructs an AdminOptions object.
+     * Sets up the window properties and initializes the components.
+     */
     public AdminOptions() {
         dictionary = new Dictionary();
         currentDifficulty = Difficulty.Easy;
@@ -31,6 +40,9 @@ public class AdminOptions extends JFrame implements ListSelectionListener, Actio
         build();
     }
 
+    /**
+     * Builds the admin options window by adding the components.
+     */
     private void build() {
         wordsList = new JList<>(new Vector<>(dictionary.getWordsByDifficulty(currentDifficulty)));
         wordsList.addListSelectionListener(this);
@@ -64,21 +76,39 @@ public class AdminOptions extends JFrame implements ListSelectionListener, Actio
         pack();
     }
 
+    /**
+     * Sets the current difficulty and reloads the word list.
+     *
+     * @param currentDifficulty the difficulty to set
+     */
     public void setCurrentDifficulty(Difficulty currentDifficulty) {
         this.currentDifficulty = currentDifficulty;
         reloadWordList();
     }
 
+    /**
+     * Reloads the word list based on the current difficulty.
+     */
     private void reloadWordList() {
         wordsList.setListData(new Vector<>(dictionary.getWordsByDifficulty(currentDifficulty)));
     }
 
+    /**
+     * Handles the value changed event for the word list selection.
+     *
+     * @param e the ListSelectionEvent
+     */
     @Override
     public void valueChanged(ListSelectionEvent e) {
         selectedWords = wordsList.getSelectedValuesList();
         removeWordButton.setEnabled(!selectedWords.isEmpty());
     }
 
+    /**
+     * Handles the action performed event for the buttons and combo box.
+     *
+     * @param e the ActionEvent
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == difficultyComboBox && e.getActionCommand().equals("comboBoxChanged")) {
@@ -97,6 +127,9 @@ public class AdminOptions extends JFrame implements ListSelectionListener, Actio
         }
     }
 
+    /**
+     * Deletes the selected words from the dictionary and reloads the word list.
+     */
     private void deleteSelectedWords() {
         for (DictionaryWord word: selectedWords) {
             dictionary.removeWord(word);
@@ -105,6 +138,9 @@ public class AdminOptions extends JFrame implements ListSelectionListener, Actio
         reloadWordList();
     }
 
+    /**
+     * Prompts the admin to enter a new word and adds it to the dictionary.
+     */
     private void promptForNewWord() {
         String wordValue = JOptionPane.showInputDialog(this, "Enter new word (Difficulty " + currentDifficulty.toString() + ") :");
         if (wordValue == null || wordValue.isBlank()) return;
@@ -114,10 +150,18 @@ public class AdminOptions extends JFrame implements ListSelectionListener, Actio
         reloadWordList();
     }
 
+    /**
+     * The main method to open the AdminOptions window.
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         openWindow();
     }
 
+    /**
+     * Opens the AdminOptions window.
+     */
     public static void openWindow() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
